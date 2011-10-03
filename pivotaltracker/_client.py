@@ -19,7 +19,7 @@ class Client(object):
 
     def get_activity(self):
         """gets all projects for this user"""
-        return self.__remote_http_get("projects")
+        return self.__remote_http_get("activities")
     
     def get_project(self, project_id):
         """gets a project from the tracker"""
