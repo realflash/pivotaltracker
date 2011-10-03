@@ -17,8 +17,20 @@ class Client(object):
         self.__base_url = "%(protocol)s://www.pivotaltracker.com/services/v3/" % dict(protocol=protocol)
         self.__parse_xml = parse_xml
 
-    def get_activity(self):
-        """gets all projects for this user"""
+    def get_activity(self,limit=None,occurred_since_date=None):
+        """gets activity for all projects"""
+        params = {}
+        if limit:
+            params["limit"] = limit
+        if occurred_since_date:
+            params["occurred_since_date"] = occurred_since_date
+        if params:
+            # we have parameters to send
+            encoded_params = urllib.urlencode(params)
+            return self.__remote_http_get("activities?%s" % (encoded_params))
+        else:
+            # no arguments, get all stories
+            return self.__remote_http_get("activities" )
         return self.__remote_http_get("activities")
     
     def get_project(self, project_id):
