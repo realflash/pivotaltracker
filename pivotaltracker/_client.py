@@ -14,9 +14,13 @@ class Client(object):
         these options by setting 'secure' or 'parse_xml' to False"""
         self.__token = token
         protocol = "https" if secure else "http"
-        self.__base_url = "%(protocol)s://www.pivotaltracker.com/services/v2/" % dict(protocol=protocol)
+        self.__base_url = "%(protocol)s://www.pivotaltracker.com/services/v3/" % dict(protocol=protocol)
         self.__parse_xml = parse_xml
-        
+
+    def get_activity(self):
+        """gets all projects for this user"""
+        return self.__remote_http_get("projects")
+    
     def get_project(self, project_id):
         """gets a project from the tracker"""
         return self.__remote_http_get("projects/%s" % project_id)
@@ -187,7 +191,7 @@ class Client(object):
                 return value
             
             elif obj_type == "commalist":
-                value = node.childNodes[0].wholeText.strip()
+                value = ''#node.childNodes[0].wholeText.strip()
                 return value.split(",")
 
             elif obj_type == "dictionary":
