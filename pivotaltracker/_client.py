@@ -14,7 +14,7 @@ class Client(object):
         these options by setting 'secure' or 'parse_xml' to False"""
         self.__token = token
         protocol = "https" if secure else "http"
-        self.__base_url = "%(protocol)s://www.pivotaltracker.com/services/v3/" % dict(protocol=protocol)
+        self.__base_url = "%(protocol)s://www.pivotaltracker.com/services/v4/" % dict(protocol=protocol)
         self.__parse_xml = parse_xml
 
     def get_activity(self,limit=None,occurred_since_date=None):
@@ -44,6 +44,11 @@ class Client(object):
     def get_story(self, project_id, story_id):
         """gets an individual story"""
         return self.__remote_http_get("projects/%s/stories/%s" % (project_id, story_id))
+        
+    def get_story_activity(self, project_id, story_id):
+        """get story activities"""
+
+        return self.__remote_http_get("projects/%s/stories/%s/activities" % (project_id, story_id))
     
     def get_stories(self, project_id, query=None, limit=None, offset=None):
         """gets stories from a project.  These stories can be filtered via 'query', and
