@@ -68,10 +68,30 @@ class Client(object):
             # no arguments, get all stories
             return self.__remote_http_get("projects/%s/stories" % project_id)
         
+    def get_task(self, project_id, story_id, task_id):
+        """gets a specific task associated with an individual story"""
+        return self.__remote_http_get("projects/%s/stories/%s/tasks/%s" % (project_id, story_id, task_id))
+        
     def get_tasks(self, project_id, story_id):
         """gets the tasks associated with an individual story"""
         return self.__remote_http_get("projects/%s/stories/%s/tasks" % (project_id, story_id))
         
+    def add_task(self, project_id, story_id, description, complete=None):
+        """adds a task to a story"""
+        xml = self.__get_task_xml(project_id, story_id, description, complete)
+        data = xml.toxml()
+        return self.__remote_http_post("projects/%s/stories/%s/tasks" % (project_id, story_id), data=data)
+    
+    def update_task(self, project_id, story_id, task_id, description, complete=None):
+        """updates a task on a story"""
+        xml = self.__get_task_xml(project_id, story_id, description, complete)
+        data = xml.toxml()
+        return self.__remote_http_post("projects/%s/stories/%s/tasks/%s" % (project_id, story_id, task_id), data=data)
+    
+    def delete_task(self, project_id, story_id, task_id):
+        """deletes a task in a story"""
+        return self.__remote_http_delete("projects/%s/stories/%s/tasks/%s" % (project_id, story_id, task_id))
+    
     def get_iterations(self, project_id, limit=None, offset=None):
         """gets iterations from a project.  These iterations can be paginated via 'limit' and 'offset'"""
         return self.__iterations_request_helper(sub_url="iterations", project_id=project_id, limit=limit, offset=offset)
@@ -92,6 +112,7 @@ class Client(object):
     
     def add_story(self, project_id, name, description, story_type, requested_by=None, estimate=None, current_state=None, labels=None):
         """adds a story to a project"""
+        #WARNING: Wait for 3 seconds after adding a story before trying to retrieve it to let the API catch up
         xml = self.__get_story_xml(project_id, name, description, requested_by, story_type, estimate, current_state, labels)
         data = xml.toxml()
         return self.__remote_http_post("projects/%s/stories" % project_id, data=data)
@@ -153,6 +174,22 @@ class Client(object):
         
         # build XML
         xml_string = "<story>%s</story>" % "".join(elements)
+        xml = minidom.parseString(xml_string.strip())
+        return xml
+    
+    def __get_task_xml(self, project_id, story_id, description, complete):
+        
+        # build XML elements
+        elements = []
+        if description is not None:
+            elements.append("<description>%s</description>" % description)
+        if complete is not None:
+            elements.append("<complete type=\"boolean\">%s</complete>" % complete)
+        else:
+            elements.append("<complete type=\"boolean\">false</complete>")
+        
+        # build XML
+        xml_string = "<task>%s</task>" % "".join(elements)
         xml = minidom.parseString(xml_string.strip())
         return xml
     
