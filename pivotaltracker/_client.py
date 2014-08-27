@@ -47,12 +47,12 @@ class Client(object):
         
     def get_story_activity(self, project_id, story_id):
         """get story activities"""
-
         return self.__remote_http_get("projects/%s/stories/%s/activities" % (project_id, story_id))
     
     def get_stories(self, project_id, query=None, limit=None, offset=None):
         """gets stories from a project.  These stories can be filtered via 'query', and
         paginated via 'limit' and 'offset'"""
+        # WARNING The name filter just doesn't work due to some PT api bug. You'll either get back nothing or everthing, irrespective of search terms.
         params = {}
         if query:
             params["filter"] = query
@@ -67,6 +67,10 @@ class Client(object):
         else:
             # no arguments, get all stories
             return self.__remote_http_get("projects/%s/stories" % project_id)
+        
+    def get_tasks(self, project_id, story_id):
+        """gets the tasks associated with an individual story"""
+        return self.__remote_http_get("projects/%s/stories/%s/tasks" % (project_id, story_id))
         
     def get_iterations(self, project_id, limit=None, offset=None):
         """gets iterations from a project.  These iterations can be paginated via 'limit' and 'offset'"""
