@@ -78,13 +78,13 @@ class Client(object):
         
     def add_task(self, project_id, story_id, description, complete=None):
         """adds a task to a story"""
-        xml = self.__get_task_xml(project_id, story_id, description, complete)
+        xml = self.__get_task_xml(description, complete)
         data = xml.toxml()
         return self.__remote_http_post("projects/%s/stories/%s/tasks" % (project_id, story_id), data=data)
     
     def update_task(self, project_id, story_id, task_id, description, complete=None):
         """updates a task on a story"""
-        xml = self.__get_task_xml(project_id, story_id, description, complete)
+        xml = self.__get_task_xml(description, complete)
         data = xml.toxml()
         return self.__remote_http_post("projects/%s/stories/%s/tasks/%s" % (project_id, story_id, task_id), data=data)
     
@@ -113,13 +113,13 @@ class Client(object):
     def add_story(self, project_id, name, description, story_type, requested_by=None, estimate=None, current_state=None, labels=None):
         """adds a story to a project"""
         #WARNING: Wait for 3 seconds after adding a story before trying to retrieve it to let the API catch up
-        xml = self.__get_story_xml(project_id, name, description, requested_by, story_type, estimate, current_state, labels)
+        xml = self.__get_story_xml(name, description, requested_by, story_type, estimate, current_state, labels)
         data = xml.toxml()
         return self.__remote_http_post("projects/%s/stories" % project_id, data=data)
     
     def update_story(self, project_id, story_id, name=None, description=None, requested_by=None, story_type=None, estimate=None, current_state=None, labels=None):
         """updates a story in a project"""
-        xml = self.__get_story_xml(project_id, name, description, requested_by, story_type, estimate, current_state, labels)
+        xml = self.__get_story_xml(name, description, requested_by, story_type, estimate, current_state, labels)
         data = xml.toxml()
         return self.__remote_http_put("projects/%s/stories/%s" % (project_id, story_id), data=data)
     
@@ -154,7 +154,7 @@ class Client(object):
         for live testing."""
         return self.__remote_http_put("projects/%s/stories/deliver_all_finished" % project_id)
     
-    def __get_story_xml(self, project_id, name, description, requested_by, story_type, estimate, current_state, labels):
+    def __get_story_xml(self, name, description, requested_by, story_type, estimate, current_state, labels):
         
         # build XML elements
         elements = []
@@ -183,7 +183,7 @@ class Client(object):
         xml = minidom.parseString(xml_string.strip())
         return xml
     
-    def __get_task_xml(self, project_id, story_id, description, complete):
+    def __get_task_xml(self, description, complete):
         
         # build XML elements
         elements = []
