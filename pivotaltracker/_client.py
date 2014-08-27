@@ -123,6 +123,12 @@ class Client(object):
         data = xml.toxml()
         return self.__remote_http_put("projects/%s/stories/%s" % (project_id, story_id), data=data)
     
+    def move_story(self, project_id, story_id, target_story_id, precedence=None):
+        """moves a story before (default) or after another story"""
+        xml = self.__get_move_xml(target_story_id, precedence)
+        data = xml.toxml()
+        return self.__remote_http_post("projects/%s/stories/%s/moves" % (project_id, story_id), data=data)
+    
     def delete_story(self, project_id, story_id):
         """deletes a story in a project"""
         return self.__remote_http_delete("projects/%s/stories/%s" % (project_id, story_id))
@@ -190,6 +196,22 @@ class Client(object):
         
         # build XML
         xml_string = "<task>%s</task>" % "".join(elements)
+        xml = minidom.parseString(xml_string.strip())
+        return xml
+    
+    def __get_move_xml(self, target_story_id, precedence):
+        
+        # build XML elements
+        elements = []
+        if target_story_id is not None:
+            elements.append("<target>%s</target>" % target_story_id)
+        if precedence is not None:
+            elements.append("<move>%s</move>" % precedence)
+        else:
+            elements.append("<move>before</move>")
+        
+        # build XML
+        xml_string = "<move>%s</move>" % "".join(elements)
         xml = minidom.parseString(xml_string.strip())
         return xml
     
